@@ -1,9 +1,9 @@
-﻿using ListSmarter.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ListSmarter.Models;
 
 namespace ListSmarter.Repositories
 {
@@ -11,8 +11,8 @@ namespace ListSmarter.Repositories
     {
         IList<BucketDto> GetAll();
         BucketDto GetById(int id);
-        void Create(BucketDto bucket);
-        void Update(BucketDto bucket);
-        void Delete(int id);
+        BucketDto Create(BucketDto bucket);
+        void Update(int id, BucketDto bucket);
+        BucketDto Delete(int id);
     }
 }

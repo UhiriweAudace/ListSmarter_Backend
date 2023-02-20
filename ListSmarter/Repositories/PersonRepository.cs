@@ -9,12 +9,12 @@ namespace ListSmarter.Repositories
 {
     public class PersonRepository : IPerson
     {
-        public void Create(PersonDto person)
+        public PersonDto Create(PersonDto person)
         {
             throw new NotImplementedException();
         }
 
-        public void Delete(int id)
+        public PersonDto Delete(int id)
         {
             throw new NotImplementedException();
         }
@@ -29,7 +29,7 @@ namespace ListSmarter.Repositories
             throw new NotImplementedException();
         }
 
-        public void Update(PersonDto person)
+        public void Update(int id, PersonDto person)
         {
             throw new NotImplementedException();
         }

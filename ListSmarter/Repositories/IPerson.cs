@@ -11,8 +11,8 @@ namespace ListSmarter.Repositories
     {
         IList<PersonDto> GetAll();
         PersonDto GetById(int id);
-        void Create(PersonDto person);
-        void Update(PersonDto person);
-        void Delete(int id);
+        PersonDto Create(PersonDto person);
+        void Update(int id, PersonDto person);
+        PersonDto Delete(int id);
     }
 }
