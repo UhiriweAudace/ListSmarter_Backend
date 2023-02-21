@@ -10,9 +10,9 @@ namespace ListSmarter.Repositories
      public interface ITask
     {
         IList<TaskDto> GetAll();
-        TaskDto GetById(int id);
+        TaskDto GetById(int taskId);
         TaskDto Create(TaskDto task);
-        void Update(int id, TaskDto task);
-        TaskDto Delete(int id);
+        void Update(int taskId, TaskDto task);
+        TaskDto Delete(int taskId);
     }
 }

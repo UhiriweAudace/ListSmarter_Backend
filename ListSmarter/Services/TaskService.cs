@@ -21,6 +21,7 @@ namespace ListSmarter.Services
             _taskRepository = task;
             _taskValidator = taskValidator ?? throw new ArgumentException();
         }
+
         public TaskDto CreateTask(TaskDto task)
         {
             return _taskRepository.Create(task);
