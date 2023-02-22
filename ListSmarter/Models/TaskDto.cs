@@ -8,7 +8,7 @@ namespace ListSmarter.Models
 {
     public class TaskDto
     {
-        public int Id { get; set; }
+        public int taskId { get; set; }
         public BucketDto? Bucket { get; set; }
         public UserDto? Assignee { get; set; }
         public string Title { get; set; }

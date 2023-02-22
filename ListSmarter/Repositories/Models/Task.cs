@@ -10,7 +10,7 @@ namespace ListSmarter.Repositories.Models
 {
     public class Task
     {
-        public int Id { get; set; }
+        public int taskId { get; set; }
         public Bucket? Bucket { get; set; }
         public User? Assignee { get; set; }
         public string Title { get; set; }
