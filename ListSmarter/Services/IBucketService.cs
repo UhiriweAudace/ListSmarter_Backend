@@ -10,9 +10,9 @@ namespace ListSmarter.Services
     public interface IBucketService
     {
         IList<BucketDto> GetBuckets();
-        BucketDto GetBucket(int bucketId);
-        void UpdateBucket(int bucketId, BucketDto bucket);
+        BucketDto GetBucket(string bucketId);
+        BucketDto UpdateBucket(string bucketId, BucketDto bucket);
         BucketDto CreateBucket(BucketDto bucket);
-        BucketDto DeleteBucket(int bucketId);
+        BucketDto DeleteBucket(string bucketId);
     }
 }

@@ -12,7 +12,7 @@ namespace ListSmarter.Repositories
         IList<BucketDto> GetAll();
         BucketDto GetById(int id);
         BucketDto Create(BucketDto bucket);
-        void Update(int id, BucketDto bucket);
+        BucketDto Update(int id, BucketDto bucket);
         BucketDto Delete(int id);
     }
 }

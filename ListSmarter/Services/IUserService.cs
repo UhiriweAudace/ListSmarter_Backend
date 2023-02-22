@@ -10,9 +10,9 @@ namespace ListSmarter.Services
     public interface IUserService
     {
         IList<UserDto> GetUsers();
-        UserDto GetUser(int id);
+        UserDto GetUser(string userId);
         UserDto CreateUser(UserDto person);
-        void UpdateUser(int personId, UserDto person);
-        UserDto DeleteUser(int personId);
+        UserDto UpdateUser(string userId, UserDto person);
+        UserDto DeleteUser(string userId);
     }
 }

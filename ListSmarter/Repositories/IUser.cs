@@ -12,7 +12,7 @@ namespace ListSmarter.Repositories
         IList<UserDto> GetAll();
         UserDto GetById(int id);
         UserDto Create(UserDto person);
-        void Update(int id, UserDto person);
+        UserDto Update(int id, UserDto person);
         UserDto Delete(int id);
     }
 }

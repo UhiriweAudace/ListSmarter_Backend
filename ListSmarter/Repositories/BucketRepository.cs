@@ -5,12 +5,10 @@ using ListSmarter.Repositories.Interfaces;
 using ListSmarter.Repositories.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace ListSmarter.Repositories
 {

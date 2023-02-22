@@ -71,6 +71,15 @@ namespace ListSmarter.Services
             {
                 throw new Exception("User_Error: User ID should be a number");
             }
+
+            var validateUser = _userValidator.Validate(user);
+            if (!(validateUser.IsValid))
+            {
+                Console.WriteLine("User_Error: User ID should be a number");
+                return null;
+            }
+
+            return _userRepository.Update(Convert.ToInt32(userId), user);
         }
     }
 }

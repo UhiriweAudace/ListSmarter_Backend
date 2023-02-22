@@ -10,9 +10,9 @@ namespace ListSmarter.Services
     public interface ITaskService
     {
         IList<TaskDto> GetTasks();
-        TaskDto GetTask(int taskId);
+        TaskDto GetTask(string taskId);
         TaskDto CreateTask(TaskDto task);
-        void UpdateTask(int taskId, TaskDto task);
-        TaskDto DeleteTask(int taskId);
+        TaskDto UpdateTask(string taskId, TaskDto task);
+        TaskDto DeleteTask(string taskId);
     }
 }

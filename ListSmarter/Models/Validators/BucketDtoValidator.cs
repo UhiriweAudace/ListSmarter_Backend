@@ -12,8 +12,7 @@ namespace ListSmarter.Models.Validators
 {
     public class BucketDtoValidator : AbstractValidator<BucketDto>
     {
-        private readonly IEnumerable<BucketDto> _buckets;
-        public BucketDtoValidator(IEnumerable<BucketDto> buckets)
+        public BucketDtoValidator()
         {
             RuleFor(b => b.Title).NotEmpty().WithMessage("Bucket Title should not be empty");
         }       

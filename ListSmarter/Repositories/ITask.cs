@@ -12,7 +12,7 @@ namespace ListSmarter.Repositories
         IList<TaskDto> GetAll();
         TaskDto GetById(int taskId);
         TaskDto Create(TaskDto task);
-        void Update(int taskId, TaskDto task);
+        TaskDto Update(int taskId, TaskDto task);
         TaskDto Delete(int taskId);
     }
 }

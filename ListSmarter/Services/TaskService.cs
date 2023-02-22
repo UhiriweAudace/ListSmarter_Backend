@@ -92,6 +92,14 @@ namespace ListSmarter.Services
             {
                 throw new Exception($"Task_Error: Task ID should be a number");
             }
+
+            var validatePerson = _taskValidator.Validate(task);
+            if (!(validatePerson.IsValid)){
+                Console.WriteLine("Task_Error: Task ID should be a number");
+                return null;
+            }
+
+            return _taskRepository.Update(Convert.ToInt32(taskId), task);
         }
     }
 }
