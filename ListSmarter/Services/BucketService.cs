@@ -93,9 +93,8 @@ namespace ListSmarter.Services
             ValidationResult results = _bucketValidator.Validate(bucket);
             if (!(results.IsValid)){
                 foreach (var failure in results.Errors) {
-                    Console.WriteLine($"Bucket_Error: {failure.ErrorMessage}");
+                    throw new Exception($"Bucket_Error: {failure.ErrorMessage}");
                 }
-                return null;
             }
 
             return _bucketRepository.Update(Convert.ToInt32(bucketId), bucket);

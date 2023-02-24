@@ -95,11 +95,49 @@ namespace ListSmarter.Services
 
             var validatePerson = _taskValidator.Validate(task);
             if (!(validatePerson.IsValid)){
-                Console.WriteLine("Task_Error: Task ID should be a number");
-                return null;
+                throw new Exception("Task_Error: Task ID should be a number");
             }
 
             return _taskRepository.Update(Convert.ToInt32(taskId), task);
+        }
+
+        public TaskDto AssignTaskToUser(string taskId, UserDto user)
+        {
+            ValidateTaskId(taskId);
+            TaskDto task = new TaskDto() { Assignee= user };
+            return _taskRepository.Update(Convert.ToInt32(taskId), task);
+        }
+
+        public TaskDto AssignTaskToBucket(string taskId, BucketDto bucket)
+        {
+            ValidateTaskId(taskId);
+            TaskDto task = new TaskDto() { Bucket = bucket };
+            return _taskRepository.Update(Convert.ToInt32(taskId) , task);
+        }
+
+        public TaskDto UpdateTaskStatus(string taskId, StatusEnum status)
+        {
+            ValidateTaskId(taskId);
+            TaskDto task = new TaskDto() { Status = status };
+            return _taskRepository.Update(Convert.ToInt32(taskId), task);
+        }
+
+        public void ValidateTaskId(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new Exception($"Task_Error: Task ID is missing");
+            };
+
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new Exception($"Task_Error: Task ID is missing");
+            };
+
+            if (!(Regex.IsMatch(id, @"^[0-9]+$", RegexOptions.Singleline)))
+            {
+                throw new Exception($"Task_Error: Task ID should be a number");
+            }
         }
     }
 }
