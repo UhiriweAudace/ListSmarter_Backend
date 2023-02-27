@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ListSmarter", "ListSmarter\ListSmarter.csproj", "{35ABEDC3-7317-4324-BD38-EE28713DDAC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ListSmarter.ConsoleUI", "ListSmarter.ConsoleUI\ListSmarter.ConsoleUI.csproj", "{DBA3A67C-ADEC-429E-97E1-2EA3941C7111}"
+	ProjectSection(ProjectDependencies) = postProject
+		{35ABEDC3-7317-4324-BD38-EE28713DDAC3} = {35ABEDC3-7317-4324-BD38-EE28713DDAC3}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{35ABEDC3-7317-4324-BD38-EE28713DDAC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35ABEDC3-7317-4324-BD38-EE28713DDAC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35ABEDC3-7317-4324-BD38-EE28713DDAC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35ABEDC3-7317-4324-BD38-EE28713DDAC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBA3A67C-ADEC-429E-97E1-2EA3941C7111}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBA3A67C-ADEC-429E-97E1-2EA3941C7111}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBA3A67C-ADEC-429E-97E1-2EA3941C7111}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBA3A67C-ADEC-429E-97E1-2EA3941C7111}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1002013-AB99-4944-BF4D-997E456FA172}
+	EndGlobalSection
+EndGlobal
