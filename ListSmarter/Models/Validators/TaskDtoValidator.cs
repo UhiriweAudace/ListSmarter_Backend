@@ -11,7 +11,6 @@ namespace ListSmarter.Models.Validators
     {
         public TaskDtoValidator()
         {
-            RuleFor(b => b.Status).NotNull().WithMessage("Status is required");
             RuleFor(b => b.Title).NotEmpty().WithMessage("Title should not be empty");
             RuleFor(b => b.Description).NotEmpty().WithMessage("Description should not be empty");
         }

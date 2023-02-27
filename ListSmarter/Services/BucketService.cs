@@ -89,15 +89,6 @@ namespace ListSmarter.Services
             {
                 throw new Exception("Bucket_Error: Bucket ID should be a number");
             }
-
-            ValidationResult results = _bucketValidator.Validate(bucket);
-            if (!(results.IsValid)){
-                foreach (var failure in results.Errors) {
-                    throw new Exception($"Bucket_Error: {failure.ErrorMessage}");
-                }
-            }
-
-            return _bucketRepository.Update(Convert.ToInt32(bucketId), bucket);
         }
 
     }

@@ -71,33 +71,6 @@ namespace ListSmarter.Services
             {
                 throw new Exception("User_Error: User ID should be a number");
             }
-
-            ValidateUserId(userId);
-            var validateUser = _userValidator.Validate(user);
-            if (!(validateUser.IsValid))
-            {
-                throw new Exception("User_Error: User ID should be a number");
-            }
-
-            return _userRepository.Update(Convert.ToInt32(userId), user);
-        }
-
-        public void ValidateUserId(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                throw new Exception("User_Error: User ID is missing");
-            };
-
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                throw new Exception("User_Error: User ID is missing");
-            };
-
-            if (!(Regex.IsMatch(id, @"^[0-9]+$", RegexOptions.Singleline)))
-            {
-                throw new Exception("User_Error: User ID should be a number");
-            }
         }
     }
 }

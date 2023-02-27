@@ -61,13 +61,14 @@ namespace ListSmarter.Repositories
 
         public TaskDto Update(int taskId, TaskDto taskData)
         {
-            Models.Task task = _tasks.First(task => task.Id == taskId);
+            Models.Task task = _tasks.FirstOrDefault(task => task.Id == taskId);
             if (task != null)
             {
                 task.Title = taskData?.Title ?? task.Title;
+                task.Status = taskData?.Status ?? task.Status;
                 task.Description = taskData?.Description ?? task.Description;
-                task.Assignee = _mapper.Map<Models.User>(taskData?.Assignee);
-                task.Bucket = _mapper.Map<Models.Bucket>(taskData?.Bucket);
+                task.Assignee = _mapper.Map<Models.User>(taskData?.Assignee) ?? task.Assignee;
+                task.Bucket = _mapper.Map<Models.Bucket>(taskData?.Bucket) ?? task.Bucket;
                 return _mapper.Map<TaskDto>(task);
             }
 

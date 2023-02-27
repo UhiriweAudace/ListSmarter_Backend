@@ -74,7 +74,7 @@ namespace ListSmarter.ConsoleUI
                 var result = _taskController.CreateTask(newTask);
                 if (result != null)
                 {
-                    Console.WriteLine($"Bucket with ID {result.Id} was created successfully.\n");
+                    Console.WriteLine($"Task with ID {result.Id} was created successfully.\n");
                 }
             }
             catch (System.Exception e)
@@ -129,7 +129,7 @@ namespace ListSmarter.ConsoleUI
                 Console.Write("Enter Status: ");
                 string Status = Console.ReadLine();
 
-                var result = _taskController.UpdateTaskStatus(taskId, Enum.Parse<StatusEnum>(Convert.ToBoolean(Status) ? Status : "None"));
+                var result = _taskController.UpdateTaskStatus(taskId, Status);
                 if (result != null)
                 {
                     Console.WriteLine($"Task with ID {taskId} was updated successfully.\n");
