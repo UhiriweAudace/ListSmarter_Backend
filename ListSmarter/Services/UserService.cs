@@ -8,6 +8,8 @@ using FluentValidation;
 using System.Text.RegularExpressions;
 using ListSmarter.Repositories.Interfaces;
 using ListSmarter.Services.Interfaces;
+using ListSmarter.Repositories.Models;
+using FluentValidation.Results;
 
 namespace ListSmarter.Services
 {
@@ -22,6 +24,15 @@ namespace ListSmarter.Services
         }
         public UserDto CreateUser(UserDto user)
         {
+            ValidationResult results = _userValidator.Validate(user);
+            if (!results.IsValid)
+            {
+                foreach (var failure in results.Errors)
+                {
+                    throw new Exception($"User_Error: {failure.ErrorMessage}");
+                }
+            }
+
             return _userRepository.Create(user);
         }
 
@@ -46,12 +57,6 @@ namespace ListSmarter.Services
         {
 
             ValidateUserId(userId);
-            var validateUser = _userValidator.Validate(user);
-            if (!(validateUser.IsValid))
-            {
-                throw new Exception("User_Error: User ID should be a number");
-            }
-
             return _userRepository.Update(Convert.ToInt32(userId), user);
         }
 

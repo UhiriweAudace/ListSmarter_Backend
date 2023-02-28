@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ListSmarter.Controllers;
 using ListSmarter.Models;
 using ListSmarter.Repositories.Models;
@@ -8,9 +9,15 @@ namespace ListSmarter.ConsoleUI
     public class TaskAction
     {
         private TaskController _taskController;
+        private JsonSerializerOptions _serializerOptions;
         public TaskAction(TaskController taskController)
         {
             _taskController = taskController;
+            _serializerOptions = new()
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                WriteIndented = true,
+            };
         }
 
         public void getAll()
@@ -20,7 +27,7 @@ namespace ListSmarter.ConsoleUI
                 Console.WriteLine("Action -> Retrieve task list");
                 _taskController.GetTasks().ForEach(task =>
                 {
-                    Console.WriteLine(JsonSerializer.Serialize(task));
+                    Console.WriteLine(JsonSerializer.Serialize<TaskDto>(task, _serializerOptions));
                 });
             }
             catch (System.Exception e)
@@ -45,7 +52,7 @@ namespace ListSmarter.ConsoleUI
                 if (result != null)
                 {
                     Console.WriteLine("Task information");
-                    Console.WriteLine(JsonSerializer.Serialize<TaskDto>(result));
+                    Console.WriteLine(JsonSerializer.Serialize<TaskDto>(result, _serializerOptions));
                 }
             }
             catch (System.Exception e)
@@ -225,7 +232,7 @@ namespace ListSmarter.ConsoleUI
                 if (result != null)
                 {
                     Console.WriteLine($"Task with ID {taskId} was deleted successfully.\n");
-                    Console.WriteLine(JsonSerializer.Serialize<TaskDto>(result));
+                    Console.WriteLine(JsonSerializer.Serialize<TaskDto>(result, _serializerOptions));
                 }
 
             }
