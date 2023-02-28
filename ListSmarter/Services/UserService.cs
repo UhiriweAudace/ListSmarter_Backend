@@ -24,15 +24,7 @@ namespace ListSmarter.Services
         }
         public UserDto CreateUser(UserDto user)
         {
-            ValidationResult results = _userValidator.Validate(user);
-            if (!results.IsValid)
-            {
-                foreach (var failure in results.Errors)
-                {
-                    throw new Exception($"User_Error: {failure.ErrorMessage}");
-                }
-            }
-
+            _userValidator.ValidateAndThrow(user);
             return _userRepository.Create(user);
         }
 
@@ -55,7 +47,6 @@ namespace ListSmarter.Services
 
         public UserDto UpdateUser(string userId, UserDto user)
         {
-
             ValidateUserId(userId);
             return _userRepository.Update(Convert.ToInt32(userId), user);
         }

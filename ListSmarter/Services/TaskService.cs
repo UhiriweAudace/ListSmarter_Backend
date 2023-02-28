@@ -25,6 +25,7 @@ namespace ListSmarter.Services
 
         public TaskDto CreateTask(TaskDto task)
         {
+            _taskValidator.ValidateAndThrow(task);
             return _taskRepository.Create(task);
         }
 
@@ -48,14 +49,7 @@ namespace ListSmarter.Services
         public TaskDto UpdateTask(string taskId, TaskDto task)
         {
             ValidateTaskId(taskId);
-            var results = _taskValidator.Validate(task);
-            if (!(results.IsValid)){
-                foreach (var failure in results.Errors)
-                {
-                    throw new Exception($"Task_Error: {failure.ErrorMessage}");
-                }
-            }
-
+            _taskValidator.ValidateAndThrow(task);
             return _taskRepository.Update(Convert.ToInt32(taskId), task);
         }
 
