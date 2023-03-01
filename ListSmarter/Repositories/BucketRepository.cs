@@ -48,9 +48,9 @@ namespace ListSmarter.Repositories
             return _mapper.Map<List<BucketDto>>( _buckets );
         }
 
-        public BucketDto GetById(int id)
+        public BucketDto GetById(int bucketId)
         {
-            Bucket bucket = _buckets.First(bucket => bucket.Id == id);
+            Bucket bucket = _buckets.First(bucket => bucket.Id == bucketId);
             if(bucket != null ){
                 return _mapper.Map<BucketDto>(bucket);
             }
@@ -60,7 +60,7 @@ namespace ListSmarter.Repositories
 
         public BucketDto Update(int bucketId, BucketDto bucketObj)
         {
-            Bucket bucket = _buckets.First(bucket => bucket.Id == bucketId);
+            Bucket bucket = _buckets.FirstOrDefault(bucket => bucket.Id == bucketId);
             if(bucket != null)
             {
                 bucket.Title = bucketObj.Title ?? bucket.Title;

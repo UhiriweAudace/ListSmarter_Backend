@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using ListSmarter.Controllers;
 using ListSmarter.Models;
 
@@ -7,9 +8,15 @@ namespace ListSmarter.ConsoleUI
     public class BucketAction
 	{
 		private BucketController _bucketController;
+        private JsonSerializerOptions _serializerOptions;
 		public BucketAction(BucketController bucketController)
 		{
 			_bucketController = bucketController;
+            _serializerOptions = new()
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                WriteIndented = true,
+            };
 		}
 
         public void getAll()
@@ -21,7 +28,7 @@ namespace ListSmarter.ConsoleUI
                 if (result != null)
                 {
                     result.ForEach(bucket => {
-                        Console.WriteLine(JsonSerializer.Serialize(bucket));
+                        Console.WriteLine(JsonSerializer.Serialize<BucketDto>(bucket, _serializerOptions));
                     });
                 }
             }
@@ -46,7 +53,7 @@ namespace ListSmarter.ConsoleUI
                 if (result != null)
                 {
                     Console.WriteLine("Bucket information");
-                    Console.WriteLine(JsonSerializer.Serialize<BucketDto>(result));
+                    Console.WriteLine(JsonSerializer.Serialize<BucketDto>(result,_serializerOptions));
                 }
             }
             catch (Exception e)
@@ -70,7 +77,7 @@ namespace ListSmarter.ConsoleUI
                 var result = _bucketController.CreateBucket(bucketData);
                 if (result != null)
                 {
-                    Console.WriteLine(JsonSerializer.Serialize<BucketDto>(result));
+                    Console.WriteLine(JsonSerializer.Serialize<BucketDto>(result, _serializerOptions));
                 }
             }
             catch (Exception e)
@@ -100,7 +107,7 @@ namespace ListSmarter.ConsoleUI
                 if (result != null)
                 {
                     Console.WriteLine($"Bucket with ID {id} was updated successfully.\n");
-                    Console.WriteLine(JsonSerializer.Serialize<BucketDto>(result));
+                    Console.WriteLine(JsonSerializer.Serialize<BucketDto>(result, _serializerOptions));
                 }
             }
             catch (Exception e)
@@ -125,7 +132,7 @@ namespace ListSmarter.ConsoleUI
                 if (result != null)
                 {
                     Console.WriteLine($"Bucket with ID {bucketId} was deleted successfully.\n");
-                    Console.WriteLine(JsonSerializer.Serialize<BucketDto>(result));
+                    Console.WriteLine(JsonSerializer.Serialize<BucketDto>(result, _serializerOptions));
                 }
             }
             catch (Exception e)

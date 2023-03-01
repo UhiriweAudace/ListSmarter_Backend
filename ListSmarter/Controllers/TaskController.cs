@@ -52,7 +52,7 @@ namespace ListSmarter.Controllers
             return _taskService.AssignTaskToBucket(taskId , bucket);
         }
 
-        public TaskDto UpdateTaskStatus(string taskId, StatusEnum status)
+        public TaskDto UpdateTaskStatus(string taskId, string status)
         {
             return _taskService.UpdateTaskStatus(taskId, status);
         }

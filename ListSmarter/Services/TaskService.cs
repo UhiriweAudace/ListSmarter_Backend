@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -24,6 +25,7 @@ namespace ListSmarter.Services
 
         public TaskDto CreateTask(TaskDto task)
         {
+            _taskValidator.ValidateAndThrow(task);
             return _taskRepository.Create(task);
         }
 
@@ -47,11 +49,7 @@ namespace ListSmarter.Services
         public TaskDto UpdateTask(string taskId, TaskDto task)
         {
             ValidateTaskId(taskId);
-            var validatePerson = _taskValidator.Validate(task);
-            if (!(validatePerson.IsValid)){
-                throw new Exception("Task_Error: Task ID should be a number");
-            }
-
+            _taskValidator.ValidateAndThrow(task);
             return _taskRepository.Update(Convert.ToInt32(taskId), task);
         }
 
@@ -69,10 +67,13 @@ namespace ListSmarter.Services
             return _taskRepository.Update(Convert.ToInt32(taskId) , task);
         }
 
-        public TaskDto UpdateTaskStatus(string taskId, StatusEnum status)
+        public TaskDto UpdateTaskStatus(string taskId, string status)
         {
             ValidateTaskId(taskId);
-            TaskDto task = new TaskDto() { Status = status };
+            ValidateTaskStatus(status);
+
+            StatusEnum Status = Enum.Parse<StatusEnum>(status);
+            TaskDto task = new TaskDto() { Status = Status };
             return _taskRepository.Update(Convert.ToInt32(taskId), task);
         }
 
@@ -80,18 +81,39 @@ namespace ListSmarter.Services
         {
             if (string.IsNullOrEmpty(id))
             {
-                throw new Exception($"Task_Error: Task ID is missing");
+                throw new Exception("Task_Error: Task ID is missing");
             };
 
             if (string.IsNullOrWhiteSpace(id))
             {
-                throw new Exception($"Task_Error: Task ID is missing");
+                throw new Exception("Task_Error: Task ID is missing");
             };
 
-            if (!(Regex.IsMatch(id, @"^[0-9]+$", RegexOptions.Singleline)))
+            bool isValid = Regex.IsMatch(id, @"^[0-9]+$", RegexOptions.None);
+            if (!isValid)
             {
-                throw new Exception($"Task_Error: Task ID should be a number");
+                throw new Exception("Task_Error: Task ID should be a number");
             }
+        }
+
+        public void ValidateTaskStatus(string status)
+        {
+            if (string.IsNullOrEmpty(status))
+            {
+                throw new Exception("Task_Error: Task Status should not be empty");
+            }
+
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                throw new Exception("Task_Error: Task Status should not be empty");
+            }
+
+            List<string> statusList = new List<string>() { "Open", "Closed", "InProgress"};
+            if(!statusList.Any(st => st == status))
+            {
+                throw new Exception("Task_Error: Task Status should be either Open, Closed or InProgress");
+            }
+
         }
     }
 }

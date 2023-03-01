@@ -27,13 +27,7 @@ namespace ListSmarter.Services
 
         public BucketDto CreateBucket(BucketDto bucket)
         {
-            ValidationResult results = _bucketValidator.Validate(bucket);
-            if (!results.IsValid){
-                foreach(var failure in results.Errors){
-                   throw new Exception($"Bucket_Error: {failure.ErrorMessage}");
-                }
-            }
-
+             _bucketValidator.ValidateAndThrow(bucket);
             var titleAlreadyTaken = Database.BucketDbList.Any(bct => bct.Title == bucket.Title);
             if(titleAlreadyTaken)
             {
@@ -63,13 +57,7 @@ namespace ListSmarter.Services
         public BucketDto UpdateBucket(string bucketId, BucketDto bucket)
         {
             ValidateBucketId(bucketId);
-            ValidationResult results = _bucketValidator.Validate(bucket);
-            if (!(results.IsValid)){
-                foreach (var failure in results.Errors) {
-                    throw new Exception($"Bucket_Error: {failure.ErrorMessage}");
-                }
-            }
-
+            _bucketValidator.ValidateAndThrow(bucket);
             return _bucketRepository.Update(Convert.ToInt32(bucketId), bucket);
         }
 

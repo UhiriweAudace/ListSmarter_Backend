@@ -88,7 +88,6 @@ namespace ListSmarter.ConsoleUI
                 Console.WriteLine();
                 Console.WriteLine("What is your next action number?");
                 var choice = Console.ReadLine();
-
                 switch (choice)
                 {
                     case "0":

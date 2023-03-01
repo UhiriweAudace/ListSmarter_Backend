@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using ListSmarter.Controllers;
 using ListSmarter.Models;
 using ListSmarter.Repositories.Models;
@@ -8,9 +9,15 @@ namespace ListSmarter.ConsoleUI
     public class UserAction
     {
         private UserController _userController;
+        private JsonSerializerOptions _serializerOptions;
         public UserAction(UserController UserController)
         {
             _userController = UserController;
+            _serializerOptions = new()
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                WriteIndented = true,
+            };
         }
 
         public void getAll()
@@ -20,7 +27,7 @@ namespace ListSmarter.ConsoleUI
                 Console.WriteLine("Action -> Retrieve user list");
                 _userController.GetUsers().ForEach(user =>
                 {
-                    Console.WriteLine(JsonSerializer.Serialize(user));
+                    Console.WriteLine(JsonSerializer.Serialize<UserDto>(user, _serializerOptions));
                 });
             }
             catch (Exception e)
@@ -44,7 +51,7 @@ namespace ListSmarter.ConsoleUI
                 if (result != null)
                 {
                     Console.WriteLine("User information");
-                    Console.WriteLine(JsonSerializer.Serialize<UserDto>(result));
+                    Console.WriteLine(JsonSerializer.Serialize<UserDto>(result, _serializerOptions));
                 }
             }
             catch (Exception e)
@@ -72,7 +79,7 @@ namespace ListSmarter.ConsoleUI
                 var user = _userController.CreateUser(newUser);
                 if (user != null)
                 {
-                    Console.WriteLine(JsonSerializer.Serialize(user));
+                    Console.WriteLine(JsonSerializer.Serialize<UserDto>(user, _serializerOptions));
                 }
             }
             catch (Exception e)
@@ -129,7 +136,7 @@ namespace ListSmarter.ConsoleUI
                 if (result != null)
                 {
                     Console.WriteLine($"Bucket with ID {userId} was deleted successfully.\n");
-                    Console.WriteLine(JsonSerializer.Serialize<UserDto>(result));
+                    Console.WriteLine(JsonSerializer.Serialize<UserDto>(result, _serializerOptions));
                 }
             }
             catch (Exception e)
