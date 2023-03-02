@@ -11,8 +11,8 @@ namespace ListSmarter.Services.Interfaces
     {
         IList<UserDto> GetUsers();
         UserDto GetUser(string userId);
-        UserDto CreateUser(UserDto person);
-        UserDto UpdateUser(string userId, UserDto person);
+        UserDto CreateUser(UserDto user);
+        UserDto UpdateUser(string userId, UserDto user);
         UserDto DeleteUser(string userId);
     }
 }

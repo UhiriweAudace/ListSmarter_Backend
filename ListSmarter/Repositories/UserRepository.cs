@@ -52,7 +52,7 @@ namespace ListSmarter.Repositories
 
         public UserDto GetById(int userId)
         {
-            User user = _users.First(user => user.Id == userId);
+            User user = _users.FirstOrDefault(user => user.Id == userId);
             if (user != null)
             {
                 return _mapper.Map<UserDto>(user);

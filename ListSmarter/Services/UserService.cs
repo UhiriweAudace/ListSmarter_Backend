@@ -36,8 +36,15 @@ namespace ListSmarter.Services
 
         public UserDto GetUser(string userId)
         {
+
             ValidateUserId(userId);
-            return _userRepository.GetById(Convert.ToInt32(userId));
+            UserDto user = _userRepository.GetById(Convert.ToInt32(userId));
+            if(user == null)
+            {
+                throw new ArgumentException("User Not found");
+            }
+
+            return user;
         }
 
         public IList<UserDto> GetUsers()
