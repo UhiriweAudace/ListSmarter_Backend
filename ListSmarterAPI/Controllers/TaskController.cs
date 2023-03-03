@@ -16,7 +16,16 @@ namespace ListSmarterAPI.Controllers
     {
         private ITaskService _taskService;
 
-        public TaskController(ITaskService taskService) => _taskService = taskService;
+        private IBucketService _bucketService;
+
+        private IUserService _userService;
+
+        public TaskController(ITaskService taskService, IUserService userService, IBucketService bucketService)
+        {
+            _taskService = taskService;
+            _bucketService = bucketService;
+            _userService = userService;
+        }
 
         [HttpGet(Name = "GetTasks")]
         public async Task<ActionResult<IEnumerable<TaskDto>>> getAllTasks()
@@ -80,6 +89,59 @@ namespace ListSmarterAPI.Controllers
             try
             {
                 return await Task.FromResult(Ok(_taskService.DeleteTask(id)));
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(ArgumentException))
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, e.Message);
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<ActionResult<TaskDto>> UpdateTaskStatus([FromRoute] string id, StatusEnum status)
+        {
+            try
+            {
+                return await Task.FromResult(Ok(_taskService.UpdateTaskStatus(id, status.ToString())));
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(ArgumentException))
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, e.Message);
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpPut("{taskId}/bucket/{bucketId}")]
+        public async Task<ActionResult<TaskDto>> AssignTaskToBucket([FromRoute] string taskId, [FromRoute] string bucketId)
+        {
+            try
+            {
+                BucketDto bucket = _bucketService.GetBucket(bucketId);
+                return await Task.FromResult(Ok(_taskService.AssignTaskToBucket(taskId, bucket)));
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(ArgumentException))
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, e.Message);
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpPut("{taskId}/users/{userId}")]
+        public async Task<ActionResult<TaskDto>> AssignTaskToUser([FromRoute] string taskId, [FromRoute] string userId)
+        {
+            try
+            {
+                UserDto user = _userService.GetUser(userId);
+                return await Task.FromResult(Ok(_taskService.AssignTaskToUser(taskId, user)));
             }
             catch (Exception e)
             {
