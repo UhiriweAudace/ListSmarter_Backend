@@ -33,7 +33,7 @@ namespace ListSmarter.Repositories
 
         public BucketDto Delete(int bucketId)
         {
-            Bucket bucketToRemove = _buckets.First(bucket => bucket.Id == bucketId);
+            Bucket bucketToRemove = _buckets.FirstOrDefault(bucket => bucket.Id == bucketId);
             if(bucketToRemove!=null)
             {
                 _buckets.Remove(bucketToRemove);
@@ -50,7 +50,7 @@ namespace ListSmarter.Repositories
 
         public BucketDto GetById(int bucketId)
         {
-            Bucket bucket = _buckets.First(bucket => bucket.Id == bucketId);
+            Bucket bucket = _buckets.FirstOrDefault(bucket => bucket.Id == bucketId);
             if(bucket != null ){
                 return _mapper.Map<BucketDto>(bucket);
             }

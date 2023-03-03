@@ -16,13 +16,13 @@ namespace ListSmarterAPI.Controllers
 
 
         [HttpGet(Name = "GetAllBuckets")]
-        public async Task<ActionResult<List<BucketDto>>> GetAll()
+        public async Task<ActionResult<List<BucketDto>>> GetAllBuckets()
         {
             return await Task.FromResult(Ok(_bucketService.GetBuckets().ToList()));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<BucketDto>> GetOne([FromRoute] string id)
+        public async Task<ActionResult<BucketDto>> GetBucket([FromRoute] string id)
         {
             try
             {
@@ -30,6 +30,10 @@ namespace ListSmarterAPI.Controllers
             }
             catch (Exception e)
             {
+                if (e.GetType() == typeof(ArgumentException))
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, e.Message);
+                }
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -58,6 +62,10 @@ namespace ListSmarterAPI.Controllers
             }
             catch (Exception e)
             {
+                if (e.GetType() == typeof(ArgumentException))
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, e.Message);
+                }
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -71,6 +79,10 @@ namespace ListSmarterAPI.Controllers
             }
             catch (Exception e)
             {
+                if (e.GetType() == typeof(ArgumentException))
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, e.Message);
+                }
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }

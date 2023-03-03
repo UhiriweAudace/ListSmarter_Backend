@@ -35,7 +35,7 @@ namespace ListSmarter.Repositories
 
         public UserDto Delete(int userId)
         {
-            User userToRemove = _users.First(user => user.Id == userId);
+            User userToRemove = _users.FirstOrDefault(user => user.Id == userId);
             if (userToRemove != null)
             {
                 _users.Remove(userToRemove);
@@ -63,7 +63,7 @@ namespace ListSmarter.Repositories
 
         public UserDto Update(int userId, UserDto userObj)
         {
-            User user = _users.First(user => user.Id == userId);
+            User user = _users.FirstOrDefault(user => user.Id == userId);
             if (user != null)
             {
                 user.FirstName = userObj?.FirstName ?? user.FirstName;

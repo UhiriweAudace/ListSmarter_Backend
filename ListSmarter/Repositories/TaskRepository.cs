@@ -37,7 +37,7 @@ namespace ListSmarter.Repositories
 
         public TaskDto Delete(int taskId)
         {
-            Models.Task taskToRemove = _tasks.First(task => task.Id == taskId);
+            Models.Task taskToRemove = _tasks.FirstOrDefault(task => task.Id == taskId);
             if (taskToRemove != null)
             {
                 _tasks.Remove(taskToRemove);
@@ -54,7 +54,7 @@ namespace ListSmarter.Repositories
 
         public TaskDto GetById(int taskId)
         {
-            Models.Task task = _tasks.First(task => task.Id == taskId);
+            Models.Task task = _tasks.FirstOrDefault(task => task.Id == taskId);
             if (task != null)
             {
                 return _mapper.Map<TaskDto>(task);

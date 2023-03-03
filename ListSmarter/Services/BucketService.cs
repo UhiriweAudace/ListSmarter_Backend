@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using ListSmarter.Repositories.Interfaces;
 using ListSmarter.Services.Interfaces;
+using ListSmarter.Repositories.Models;
 
 namespace ListSmarter.Services
 {
@@ -27,26 +28,26 @@ namespace ListSmarter.Services
 
         public BucketDto CreateBucket(BucketDto bucket)
         {
-             _bucketValidator.ValidateAndThrow(bucket);
-            var titleAlreadyTaken = Database.BucketDbList.Any(bct => bct.Title == bucket.Title);
-            if(titleAlreadyTaken)
-            {
-                throw new Exception("Bucket_Error: Bucket Name should be unique");
-            }
-
+            _bucketValidator.ValidateAndThrow(bucket);
+            ValidateBucketUniqueness(bucket);
             return _bucketRepository.Create(bucket);
         }
 
         public BucketDto DeleteBucket(string bucketId)
         {
-            ValidateBucketId(bucketId);
+            GetBucket(bucketId);
             return _bucketRepository.Delete(Convert.ToInt32(bucketId));
         }
 
         public BucketDto GetBucket(string bucketId)
         {
             ValidateBucketId(bucketId);
-            return _bucketRepository.GetById(Convert.ToInt32(bucketId));
+            BucketDto bucket = _bucketRepository.GetById(Convert.ToInt32(bucketId));
+            if (bucket == null)
+            {
+                throw new ArgumentException($"Bucket with ID {bucketId} not found");
+            }
+            return bucket;
         }
 
         public IList<BucketDto> GetBuckets()
@@ -56,7 +57,7 @@ namespace ListSmarter.Services
 
         public BucketDto UpdateBucket(string bucketId, BucketDto bucket)
         {
-            ValidateBucketId(bucketId);
+            GetBucket(bucketId);
             _bucketValidator.ValidateAndThrow(bucket);
             return _bucketRepository.Update(Convert.ToInt32(bucketId), bucket);
         }
@@ -79,5 +80,13 @@ namespace ListSmarter.Services
             }
         }
 
+        public void ValidateBucketUniqueness(BucketDto bucket)
+        {
+            var titleAlreadyTaken = Database.BucketDbList.Any(bct => bct.Title == bucket.Title);
+            if (titleAlreadyTaken)
+            {
+                throw new Exception("Bucket_Error: Bucket Name should be unique");
+            }
+        }
     }
 }

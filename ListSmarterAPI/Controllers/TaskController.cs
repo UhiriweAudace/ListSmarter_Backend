@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ListSmarter.Models;
-using ListSmarter.Services;
 using ListSmarter.Services.Interfaces;
 using ListSmarterAPI.Model;
 using Microsoft.AspNetCore.Http;
@@ -11,26 +10,26 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ListSmarterAPI.Controllers
 {
-    [Route("api/users")]
+    [Route("api/tasks")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class TaskController : ControllerBase
     {
-        private IUserService _userService;
+        private ITaskService _taskService;
 
-        public UserController(IUserService userService) => _userService = userService;
+        public TaskController(ITaskService taskService) => _taskService = taskService;
 
-        [HttpGet(Name = "GetUsers")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> getAllUsers()
+        [HttpGet(Name = "GetTasks")]
+        public async Task<ActionResult<IEnumerable<TaskDto>>> getAllTasks()
         {
-            return await Task.FromResult(Ok(_userService.GetUsers().ToList()));
+            return await Task.FromResult(Ok(_taskService.GetTasks().ToList()));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserDto>> GetUser([FromRoute] string id)
+        public async Task<ActionResult<TaskDto>> GetTask([FromRoute] string id)
         {
             try
             {
-                return await Task.FromResult(Ok(_userService.GetUser(id)));
+                return await Task.FromResult(Ok(_taskService.GetTask(id)));
             }
             catch (Exception e)
             {
@@ -43,13 +42,13 @@ namespace ListSmarterAPI.Controllers
         }
 
 
-        [HttpPost(Name = "CreateUser")]
-        public async Task<ActionResult<UserDto>> Create([FromBody] UserModel userToUpdate)
+        [HttpPost(Name = "CreateTask")]
+        public async Task<ActionResult<TaskDto>> Create([FromBody] TaskModel taskData)
         {
             try
             {
-                UserDto user = new UserDto() { FirstName = userToUpdate.FirstName, LastName = userToUpdate.LastName };
-                return await Task.FromResult(Ok(_userService.CreateUser(user)));
+                TaskDto task = new TaskDto() { Title = taskData.Title, Description = taskData.Description };
+                return await Task.FromResult(Ok(_taskService.CreateTask(task)));
             }
             catch (Exception e)
             {
@@ -58,12 +57,12 @@ namespace ListSmarterAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<UserDto>> Update([FromRoute] string id, [FromBody] UserModel userToUpdate)
+        public async Task<ActionResult<TaskDto>> Update([FromRoute] string id, [FromBody] TaskModel taskData)
         {
             try
             {
-                UserDto user = new UserDto() { FirstName = userToUpdate.FirstName, LastName = userToUpdate.LastName };
-                return await Task.FromResult(Ok(_userService.UpdateUser(id, user)));
+                TaskDto task = new TaskDto() { Title = taskData.Title, Description = taskData.Description };
+                return await Task.FromResult(Ok(_taskService.UpdateTask(id, task)));
             }
             catch (Exception e)
             {
@@ -76,11 +75,11 @@ namespace ListSmarterAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<UserDto>> Delete([FromRoute] string id)
+        public async Task<ActionResult<TaskDto>> Delete([FromRoute] string id)
         {
             try
             {
-                return await Task.FromResult(Ok(_userService.DeleteUser(id)));
+                return await Task.FromResult(Ok(_taskService.DeleteTask(id)));
             }
             catch (Exception e)
             {
