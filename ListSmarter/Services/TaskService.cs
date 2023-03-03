@@ -59,14 +59,14 @@ namespace ListSmarter.Services
             return _taskRepository.Update(Convert.ToInt32(taskId), task);
         }
 
-        public TaskDto AssignTaskToUser(string taskId, UserDto user)
+        public TaskDto AssignUserToTask(string taskId, UserDto user)
         {
             GetTask(taskId);
             TaskDto task = new TaskDto() { Assignee = user };
             return _taskRepository.Update(Convert.ToInt32(taskId), task);
         }
 
-        public TaskDto AssignTaskToBucket(string taskId, BucketDto bucket)
+        public TaskDto AssignBucketToTask(string taskId, BucketDto bucket)
         {
             GetTask(taskId);
             TaskDto task = new TaskDto() { Bucket = bucket };

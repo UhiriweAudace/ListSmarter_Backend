@@ -117,13 +117,13 @@ namespace ListSmarterAPI.Controllers
             }
         }
 
-        [HttpPut("{taskId}/bucket/{bucketId}")]
-        public async Task<ActionResult<TaskDto>> AssignTaskToBucket([FromRoute] string taskId, [FromRoute] string bucketId)
+        [HttpPut("assignBucketToTask/{taskId}")]
+        public async Task<ActionResult<TaskDto>> AssignBucketToTask([FromRoute] string taskId, string bucketId)
         {
             try
             {
                 BucketDto bucket = _bucketService.GetBucket(bucketId);
-                return await Task.FromResult(Ok(_taskService.AssignTaskToBucket(taskId, bucket)));
+                return await Task.FromResult(Ok(_taskService.AssignBucketToTask(taskId, bucket)));
             }
             catch (Exception e)
             {
@@ -135,13 +135,13 @@ namespace ListSmarterAPI.Controllers
             }
         }
 
-        [HttpPut("{taskId}/users/{userId}")]
-        public async Task<ActionResult<TaskDto>> AssignTaskToUser([FromRoute] string taskId, [FromRoute] string userId)
+        [HttpPut("assignUserToTask/{taskId}")]
+        public async Task<ActionResult<TaskDto>> AssiggUserToTask([FromRoute] string taskId, string userId)
         {
             try
             {
                 UserDto user = _userService.GetUser(userId);
-                return await Task.FromResult(Ok(_taskService.AssignTaskToUser(taskId, user)));
+                return await Task.FromResult(Ok(_taskService.AssignUserToTask(taskId, user)));
             }
             catch (Exception e)
             {

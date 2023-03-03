@@ -13,11 +13,11 @@ namespace ListSmarter
     {
         public AutoMapperProfile()
         {
-            CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<User, UserDto>().ReverseMap().MaxDepth(2);
 
-            CreateMap<Repositories.Models.Task, TaskDto>().ReverseMap();
+            CreateMap<Repositories.Models.Task, TaskDto>().ReverseMap().MaxDepth(2);
 
-            CreateMap<Bucket, BucketDto>().ReverseMap();
+            CreateMap<Bucket, BucketDto>().ReverseMap().MaxDepth(2);
         }
     }
 }

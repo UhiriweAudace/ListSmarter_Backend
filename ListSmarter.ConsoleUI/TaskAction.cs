@@ -153,7 +153,7 @@ namespace ListSmarter.ConsoleUI
         }
 
 
-        public void assignTaskToUser(BucketController _bucketController, UserController _userController)
+        public void assignUserToTask(BucketController _bucketController, UserController _userController)
         {
             try
             {
@@ -165,7 +165,7 @@ namespace ListSmarter.ConsoleUI
                 string userId = Console.ReadLine();
 
                 UserDto user = _userController.GetUser(userId);
-                var result = _taskController.AssignTaskToUser(taskId, user);
+                var result = _taskController.AssignUserToTask(taskId, user);
                 if (result != null)
                 {
                     user.Tasks?.Add(result);
@@ -184,7 +184,7 @@ namespace ListSmarter.ConsoleUI
         }
 
 
-        public void assignTaskToBucket(BucketController _bucketController, UserController _userController)
+        public void assignBucketToTask(BucketController _bucketController, UserController _userController)
         {
             try
             {
@@ -196,7 +196,7 @@ namespace ListSmarter.ConsoleUI
                 string bucketId = Console.ReadLine();
 
                 BucketDto bucket = _bucketController.GetBucket(bucketId);
-                TaskDto result = _taskController.AssignTaskToBucket(taskId, bucket);
+                TaskDto result = _taskController.AssignBucketToTask(taskId, bucket);
                 if (result != null)
                 {
                     if(bucket.Tasks != null && bucket.Tasks.ToList().Count >=10)
