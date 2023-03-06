@@ -27,8 +27,7 @@ namespace ListSmarter.Repositories
         public UserDto Create(UserDto user)
         {
             User newUser = _mapper.Map<User>(user);
-            int userLength = GetAll().ToList().Count;
-            newUser.Id = userLength + 1;
+            newUser.Id = _users.Count + 1;
             _users.Add(newUser);
             return _mapper.Map<UserDto>(newUser);
         }

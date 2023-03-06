@@ -29,8 +29,7 @@ namespace ListSmarter.Repositories
         public TaskDto Create(TaskDto task)
         {
             Models.Task newTask = _mapper.Map<Models.Task>(task);
-            int taskLength = GetAll().ToList().Count;
-            newTask.Id = taskLength + 1;
+            newTask.Id = _tasks.Count + 1;
             _tasks.Add(newTask);
             return _mapper.Map<TaskDto>(newTask);
         }

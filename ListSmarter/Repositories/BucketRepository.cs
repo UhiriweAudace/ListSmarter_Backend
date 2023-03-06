@@ -25,8 +25,8 @@ namespace ListSmarter.Repositories
 
         public BucketDto Create(BucketDto bucket)
         {
-            bucket.Id = GetAll().ToList().Count + 1;
             Bucket newBucket = _mapper.Map<Bucket>(bucket);
+            newBucket.Id = _buckets.Count + 1;
             _buckets.Add(newBucket);
             return _mapper.Map<BucketDto>(newBucket);
         }

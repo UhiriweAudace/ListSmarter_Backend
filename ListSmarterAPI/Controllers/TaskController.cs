@@ -22,9 +22,9 @@ namespace ListSmarterAPI.Controllers
 
         public TaskController(ITaskService taskService, IUserService userService, IBucketService bucketService)
         {
+            _userService = userService;
             _taskService = taskService;
             _bucketService = bucketService;
-            _userService = userService;
         }
 
         [HttpGet(Name = "GetTasks")]
@@ -117,8 +117,8 @@ namespace ListSmarterAPI.Controllers
             }
         }
 
-        [HttpPut("assignBucketToTask/{taskId}")]
-        public async Task<ActionResult<TaskDto>> AssignBucketToTask([FromRoute] string taskId, string bucketId)
+        [HttpPut("assignBucketToTask/{taskId}/bucket/{bucketId}")]
+        public async Task<ActionResult<TaskDto>> AssignBucketToTask([FromRoute] string taskId, [FromRoute] string bucketId)
         {
             try
             {
@@ -135,8 +135,8 @@ namespace ListSmarterAPI.Controllers
             }
         }
 
-        [HttpPut("assignUserToTask/{taskId}")]
-        public async Task<ActionResult<TaskDto>> AssiggUserToTask([FromRoute] string taskId, string userId)
+        [HttpPut("assignUserToTask/{taskId}/user/{userId}")]
+        public async Task<ActionResult<TaskDto>> AssiggUserToTask([FromRoute] string taskId, [FromRoute] string userId)
         {
             try
             {
