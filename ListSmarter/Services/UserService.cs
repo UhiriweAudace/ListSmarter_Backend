@@ -16,12 +16,15 @@ namespace ListSmarter.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+
         private readonly IValidator<UserDto> _userValidator;
+
         public UserService(IUserRepository user, IValidator<UserDto> userValidator)
         {
             _userRepository = user;
             _userValidator = userValidator ?? throw new ArgumentException();
         }
+
         public UserDto CreateUser(UserDto user)
         {
             _userValidator.ValidateAndThrow(user);
@@ -30,14 +33,21 @@ namespace ListSmarter.Services
 
         public UserDto DeleteUser(string userId)
         {
-            ValidateUserId(userId);
+            GetUser(userId);
             return _userRepository.Delete(Convert.ToInt32(userId));
         }
 
         public UserDto GetUser(string userId)
         {
+
             ValidateUserId(userId);
-            return _userRepository.GetById(Convert.ToInt32(userId));
+            UserDto user = _userRepository.GetById(Convert.ToInt32(userId));
+            if (user == null)
+            {
+                throw new ArgumentException($"User with ID {userId} not found");
+            }
+
+            return user;
         }
 
         public IList<UserDto> GetUsers()
@@ -47,7 +57,7 @@ namespace ListSmarter.Services
 
         public UserDto UpdateUser(string userId, UserDto user)
         {
-            ValidateUserId(userId);
+            GetUser(userId);
             return _userRepository.Update(Convert.ToInt32(userId), user);
         }
 

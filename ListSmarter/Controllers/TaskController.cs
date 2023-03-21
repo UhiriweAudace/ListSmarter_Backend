@@ -42,14 +42,14 @@ namespace ListSmarter.Controllers
         }
 
         
-        public TaskDto AssignTaskToUser(string taskId, UserDto user)
+        public TaskDto AssignUserToTask(string taskId, UserDto user)
         {
-            return _taskService.AssignTaskToUser(taskId, user);
+            return _taskService.AssignUserToTask(taskId, user);
         }
 
-        public TaskDto AssignTaskToBucket(string taskId, BucketDto bucket)
+        public TaskDto AssignBucketToTask(string taskId, BucketDto bucket)
         {
-            return _taskService.AssignTaskToBucket(taskId , bucket);
+            return _taskService.AssignBucketToTask(taskId , bucket);
         }
 
         public TaskDto UpdateTaskStatus(string taskId, string status)

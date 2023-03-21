@@ -125,9 +125,9 @@ namespace ListSmarter.ConsoleUI
                     case "16":
                         taskAction.UpdateTaskStatus(bucketController, userController); break;
                     case "17":
-                        taskAction.assignTaskToUser(bucketController, userController); break;
+                        taskAction.assignUserToTask(bucketController, userController); break;
                     case "18":
-                        taskAction.assignTaskToBucket(bucketController, userController); break;
+                        taskAction.assignBucketToTask(bucketController, userController); break;
 
                     case "00":
                         System.Environment.Exit(-1);

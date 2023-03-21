@@ -27,15 +27,14 @@ namespace ListSmarter.Repositories
         public UserDto Create(UserDto user)
         {
             User newUser = _mapper.Map<User>(user);
-            int userLength = GetAll().ToList().Count;
-            newUser.Id = userLength + 1;
+            newUser.Id = _users.Count + 1;
             _users.Add(newUser);
             return _mapper.Map<UserDto>(newUser);
         }
 
         public UserDto Delete(int userId)
         {
-            User userToRemove = _users.First(user => user.Id == userId);
+            User userToRemove = _users.FirstOrDefault(user => user.Id == userId);
             if (userToRemove != null)
             {
                 _users.Remove(userToRemove);
@@ -52,7 +51,7 @@ namespace ListSmarter.Repositories
 
         public UserDto GetById(int userId)
         {
-            User user = _users.First(user => user.Id == userId);
+            User user = _users.FirstOrDefault(user => user.Id == userId);
             if (user != null)
             {
                 return _mapper.Map<UserDto>(user);
@@ -63,7 +62,7 @@ namespace ListSmarter.Repositories
 
         public UserDto Update(int userId, UserDto userObj)
         {
-            User user = _users.First(user => user.Id == userId);
+            User user = _users.FirstOrDefault(user => user.Id == userId);
             if (user != null)
             {
                 user.FirstName = userObj?.FirstName ?? user.FirstName;

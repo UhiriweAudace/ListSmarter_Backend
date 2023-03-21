@@ -14,8 +14,8 @@ namespace ListSmarter.Services.Interfaces
         TaskDto CreateTask(TaskDto task);
         TaskDto UpdateTask(string taskId, TaskDto task);
         TaskDto DeleteTask(string taskId);
-        TaskDto AssignTaskToUser(string taskId, UserDto user);
-        TaskDto AssignTaskToBucket(string taskId, BucketDto bucket);
+        TaskDto AssignUserToTask(string taskId, UserDto user);
+        TaskDto AssignBucketToTask(string taskId, BucketDto bucket);
         TaskDto UpdateTaskStatus(string taskId, string status);
     }
 }
