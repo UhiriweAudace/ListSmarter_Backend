@@ -6,11 +6,8 @@ using ListSmarter.Models.Validators;
 using System.Collections.Generic;
 using ListSmarter.Repositories.Models;
 using ListSmarter.Services.Interfaces;
-using ListSmarter.Controllers;
 using ListSmarter.Services;
 using ListSmarter.Repositories;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace ListSmarter.Test;
 
