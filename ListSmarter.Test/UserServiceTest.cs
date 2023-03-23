@@ -8,6 +8,7 @@ using ListSmarter.Repositories.Models;
 using ListSmarter.Services.Interfaces;
 using ListSmarter.Services;
 using ListSmarter.Repositories;
+using ListSmarter.Common;
 
 namespace ListSmarter.Test;
 
@@ -25,8 +26,7 @@ public class UserServiceTest
         _userService = new UserService(new UserRepository(_mapper), new UserDtoValidator() );
         foreach(User user in GetUsersDummyData().ToList())
         {
-            UserDto newUser = new UserDto() { FirstName = user.FirstName, LastName = user.LastName };
-            _userService.CreateUser(newUser);
+            Database.UserDbList.Add(user);
         };
     }
 
