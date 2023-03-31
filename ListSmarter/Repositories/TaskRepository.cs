@@ -79,14 +79,14 @@ namespace ListSmarter.Repositories
             if (assignee != null)
             {
                 task.Assignee = assignee;
-                assignee.Tasks.Add(task);
+                //assignee.Tasks.Add(task);
             }
 
             var bucket = _buckets.FirstOrDefault(bucket => bucket.Id == taskData?.Bucket?.Id);
             if (bucket != null)
             {
                 task.Bucket = bucket;
-                bucket.Tasks.Add(task);
+                //bucket.Tasks.Add(task);
             }
 
             return _mapper.Map<TaskDto>(task);

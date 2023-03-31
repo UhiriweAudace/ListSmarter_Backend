@@ -15,13 +15,13 @@ using ListSmarter.Repositories.Models;
 
 namespace ListSmarter.Test
 {
-	public class TaskServiceTest
-	{
+    public class TaskServiceTest
+    {
         private readonly ITaskService _taskService;
         private readonly IMapper _mapper;
 
         public TaskServiceTest()
-		{
+        {
             // Initialize AutoMapper
             _mapper = new MapperConfiguration((cfg) =>
             {
@@ -49,7 +49,7 @@ namespace ListSmarter.Test
             {
                 Database.TaskDbList.Add(task);
             }
-		}
+        }
 
         [Fact]
         public void GetTasks_list()
@@ -131,7 +131,7 @@ namespace ListSmarter.Test
         [InlineData("1", "Create navigation menu", "dummy description")]
         public void UpdateTask_test(string TaskId, string title, string description)
         {
-            TaskDto updatedTask = new TaskDto() { Title = title, Description = description};
+            TaskDto updatedTask = new TaskDto() { Title = title, Description = description };
 
             //act
             var TaskResult = _mapper.Map<Task>(_taskService.UpdateTask(TaskId, updatedTask));
@@ -146,6 +146,7 @@ namespace ListSmarter.Test
 
         [Theory]
         [InlineData("2")]
+        [InlineData("3")]
         public void DeleteTask_test(string TaskId)
         {
             //act
@@ -153,27 +154,48 @@ namespace ListSmarter.Test
 
             //assertions
             TaskResult.Should().NotBeNull();
-            TaskResult.Title.Should().Be("Create aboutUs page");
-            TaskResult.Id.Should().Be(2);
+            TaskResult.Title.Should().Be($"Create landing page {TaskId}");
+            TaskResult.Id.Should().Be(Convert.ToInt32(TaskId));
         }
+
+        [Theory]
+        [InlineData("1034", "1")]
+        public void AssignBucketToTask_ThrowError_If_Task_Not_Found(string taskId, string bucketId)
+        {
+            // act
+            BucketDto bucketDto = new BucketDto { Id = Convert.ToInt32(bucketId), Title = "Bucket Title 1" };
+            Action TaskResult = () => _taskService.AssignBucketToTask(taskId, bucketDto);
+
+            TaskResult.Should().Throw<Exception>().WithMessage("Task with ID 1034 not found");
+        }
+
+        [Theory]
+        [InlineData("1", "1")]
+        public void AssignBucketToTask_ThrowError_If_Bucket_Limit_Exceeded(string taskId, string bucketId)
+        {
+            // act
+            BucketDto bucketDto = new BucketDto { Id = Convert.ToInt32(bucketId), Title = "Bucket Title 1" };
+            Action TaskResult = () => _taskService.AssignBucketToTask(taskId, bucketDto);
+
+            TaskResult.Should().Throw<Exception>().WithMessage("Task_Error: 10 Tasks per Bucket exceeded");
+        }
+
 
         private List<Task> GetTasksDummyData()
         {
-            List<Task> tasksData = new List<Task>()
-        {
-            new Task{
-                Id = 1,
-                Status = StatusEnum.None,
-                Title = "Create landing page",
-                Description = "Create index.html file inside src directory",
-            },
-            new Task{
-                Id = 2,
-                Status = StatusEnum.None,
-                Title = "Create aboutUs page",
-                Description = "Create aboutUs.html file inside src directory",
-            },
-        };
+            var taskIds = Enumerable.Range(1, 10).ToList();
+            List<Task> tasksData = taskIds.Select((idx) =>
+            {
+                return new Task
+                {
+                    Id = idx,
+                    Status = StatusEnum.None,
+                    Title = $"Create landing page {idx}",
+                    Description = $"Description {idx}",
+                    Bucket = new Bucket { Id = 1, Title = "Bucket Title 1" },
+                    Assignee = new User { Id = idx, FirstName = $"firstname {idx}", LastName = $"lastname {idx}" }
+                };
+            }).ToList();
             return tasksData;
         }
     }

@@ -13,8 +13,8 @@ using ListSmarter.Models.Validators;
 
 namespace ListSmarter.Test
 {
-	public class BucketServiceTest
-	{
+    public class BucketServiceTest
+    {
         private readonly IMapper _mapper;
         private readonly IBucketService _bucketService;
 
@@ -26,7 +26,7 @@ namespace ListSmarter.Test
             }).CreateMapper();
             _bucketService = new BucketService(new BucketRepository(_mapper), new BucketDtoValidator());
 
-            foreach(Bucket bucket in GetBucketsDummyData())
+            foreach (Bucket bucket in GetBucketsDummyData())
             {
                 Database.BucketDbList.Add(bucket);
             }
@@ -39,7 +39,7 @@ namespace ListSmarter.Test
             BucketDto newBucket = new BucketDto { Title = title };
 
             //act
-            Action BucketResult = () =>_bucketService.CreateBucket(newBucket);
+            Action BucketResult = () => _bucketService.CreateBucket(newBucket);
 
             //assertions
             BucketResult.Should().Throw<FluentValidation.ValidationException>().WithMessage("Validation failed: \n -- Title: Bucket Title should not be empty Severity: Error");
@@ -94,7 +94,7 @@ namespace ListSmarter.Test
             Action BucketResult = () => _bucketService.GetBucket(BucketId);
 
             //assertions
-            BucketResult.Should().Throw<ArgumentException>().WithMessage($"Bucket with ID 430 not found");
+            BucketResult.Should().Throw<ArgumentException>().WithMessage("Bucket with ID 430 not found");
         }
 
         [Theory]
@@ -105,7 +105,7 @@ namespace ListSmarter.Test
             Action BucketResult = () => _bucketService.GetBucket(BucketId);
 
             //assertions
-            BucketResult.Should().Throw<Exception>().WithMessage($"Bucket_Error: Bucket ID is missing");
+            BucketResult.Should().Throw<Exception>().WithMessage("Bucket_Error: Bucket ID is missing");
         }
 
         [Theory]
@@ -151,23 +151,11 @@ namespace ListSmarter.Test
         private List<Bucket> GetBucketsDummyData()
         {
             List<Bucket> BucketsData = new List<Bucket>()
-        {
-            new Bucket
             {
-                Id = 1,
-                Title = "Banking_Application",
-            },
-            new Bucket
-            {
-                Id = 2,
-                Title = "ListSmarter_Application",
-            },
-            new Bucket
-            {
-                Id = 3,
-                Title = "Todo_Application"
-            }
-        };
+                new Bucket { Id = 1,Title = "Banking_Application"},
+                new Bucket { Id = 2, Title = "ListSmarter_Application"},
+                new Bucket { Id = 3, Title = "Todo_Application" }
+            };
             return BucketsData;
         }
 
