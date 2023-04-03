@@ -1,15 +1,10 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 using ListSmarter.Models;
 using ListSmarter.Repositories.Interfaces;
-using ListSmarter.Repositories.Models;
 using ListSmarter.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using ListSmarter.Common;
+using Task = ListSmarter.Repositories.Models.Task;
 
 namespace ListSmarter.Services
 {
@@ -17,11 +12,13 @@ namespace ListSmarter.Services
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IValidator<TaskDto> _taskValidator;
+        private List<Task> _tasks;
 
         public TaskService(ITaskRepository task, IValidator<TaskDto> taskValidator)
         {
             _taskRepository = task;
             _taskValidator = taskValidator ?? throw new ArgumentException();
+            _tasks = Database.TaskDbList;
         }
 
         public TaskDto CreateTask(TaskDto task)
@@ -69,6 +66,7 @@ namespace ListSmarter.Services
         public TaskDto AssignBucketToTask(string taskId, BucketDto bucket)
         {
             GetTask(taskId);
+            ValidateBucketFullness(bucket.Id);
             TaskDto task = new TaskDto() { Bucket = bucket };
             return _taskRepository.Update(Convert.ToInt32(taskId), task);
         }
@@ -119,7 +117,25 @@ namespace ListSmarter.Services
             {
                 throw new Exception("Task_Error: Task Status should be either Open, Closed or InProgress");
             }
+        }
 
+        public void ValidateBucketFullness(int bucketId)
+        {
+            int taskCount = _tasks.Aggregate(0, (prev, cur) =>
+            {
+                if (cur?.Bucket?.Id == bucketId)
+                {
+                    int count = prev++;
+                    return count;
+                }
+   
+                return prev;
+            });
+
+            if (taskCount >= 10)
+            {
+                throw new Exception("Task_Error: 10 Tasks per Bucket exceeded");
+            }
         }
     }
 }
