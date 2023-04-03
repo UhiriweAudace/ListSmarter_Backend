@@ -3,12 +3,10 @@ using FluentAssertions;
 using AutoMapper;
 using ListSmarter.Models;
 using ListSmarter.Models.Validators;
-using System.Collections.Generic;
 using ListSmarter.Repositories.Models;
 using ListSmarter.Services.Interfaces;
 using ListSmarter.Services;
-using ListSmarter.Repositories;
-using ListSmarter.Common;
+using ListSmarter.Repositories.Interfaces;
 
 namespace ListSmarter.Test;
 
@@ -16,6 +14,7 @@ public class UserServiceTest
 {
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
+    private readonly Mock<IUserRepository> _mockUserRepository;
 
     public UserServiceTest()
     {
@@ -23,19 +22,19 @@ public class UserServiceTest
         {
             cfg.AddProfile(new AutoMapperProfile());
         }).CreateMapper();
-        _userService = new UserService(new UserRepository(_mapper), new UserDtoValidator() );
-        foreach(User user in GetUsersDummyData().ToList())
-        {
-            Database.UserDbList.Add(user);
-        };
+
+        _mockUserRepository = new Mock<IUserRepository>();
+        _userService = new UserService(_mockUserRepository.Object, new UserDtoValidator() );
     }
 
     [Fact]
-    public void GetUsers_list()
+    public void GetUsers_ShouldReturnUsersList()
     {
+        var users = _mapper.Map<List<UserDto>>(GetUsersDummyData());
+        _mockUserRepository.Setup((x) => x.GetAll()).Returns(users);
 
         //act
-        var userResult = _mapper.Map<List<User>>(_userService.GetUsers());
+        var userResult = _userService.GetUsers();
 
         //assertions
         userResult.Should().NotBeNull();
@@ -43,13 +42,16 @@ public class UserServiceTest
     }
 
     [Theory]
-    [InlineData("1")]
-    [InlineData("2")]
-    [InlineData("3")]
-    public void GetUserById(string userId)
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void GetUser_ShouldReturnUserDetails(int userId)
     {
+        // Arrange
+        var expectedResponse = _mapper.Map<UserDto>(GetUsersDummyData().FirstOrDefault((x) => x.Id == userId));
+        _mockUserRepository.Setup(x => x.GetById(userId)).Returns(expectedResponse);
         //act
-        var userResult = _userService.GetUser(userId);
+        var userResult = _userService.GetUser(userId.ToString());
 
         //assertions
         userResult.Should().NotBeNull();
@@ -57,19 +59,21 @@ public class UserServiceTest
     }
 
     [Theory]
-    [InlineData("320")]
-    public void GetUserById_ThrowNotFoundError(string userId)
+    [InlineData(4)]
+    [InlineData(5)]
+    public void GetUser_ShouldThrowNotFoundError(int userId)
     {
         //act
-        Action userResult = () =>_userService.GetUser(userId);
+        Action userResult = () =>_userService.GetUser(userId.ToString());
 
         //assertions
-        userResult.Should().Throw<ArgumentException>().WithMessage($"User with ID 320 not found");
+        userResult.Should().Throw<ArgumentException>().WithMessage($"User with ID {userId} not found");
     }
 
     [Theory]
     [InlineData(null)]
-    public void GetUserById_ThrowError_ForMissing_UserId(string userId)
+    [InlineData(" ")]
+    public void GetUser_ShouldThrowError_WhenUserIdIsMissing(string userId)
     {
         //act
         Action userResult = () => _userService.GetUser(userId);
@@ -80,7 +84,8 @@ public class UserServiceTest
 
     [Theory]
     [InlineData("qerq42")]
-    public void GetUserById_ThrowError_For_InvalidUserId(string userId)
+    [InlineData("xd_fr567")]
+    public void GetUser_ShouldThrowError_ForInvalidUserId(string userId)
     {
         //act
         var userResult = () => _userService.GetUser(userId);
@@ -92,12 +97,13 @@ public class UserServiceTest
     [Theory]
     [InlineData("Miller", "Cobby")]
     [InlineData("Malcom", "Nicky")]
-    public void CreateUser_test(string firstName, string lastName)
+    public void CreateUser_ShouldReturnCreatedUser(string firstName, string lastName)
     {
         UserDto newUser = new UserDto() { FirstName = firstName, LastName = lastName };
+        _mockUserRepository.Setup(x => x.Create(newUser)).Returns(newUser);
 
         //act
-        var userResult = _mapper.Map<User>(_userService.CreateUser(newUser));
+        var userResult = _userService.CreateUser(newUser);
 
         //assertions
         userResult.Should().NotBeNull();
@@ -106,15 +112,21 @@ public class UserServiceTest
     }
 
     [Theory]
-    [InlineData("1", "Miller", "Cobby")]
-    [InlineData("2", "Bradly", "Jimmy")]
-    [InlineData("3", "Ronny", "Mark")]
-    public void UpdateUser_test(string userId, string firstName, string lastName)
+    [InlineData(1, "Miller", "Cobby")]
+    [InlineData(2, "Bradly", "Jimmy")]
+    [InlineData(3, "Ronny", "Mark")]
+    public void UpdateUser_ShouldReturnUpdatedUser(int userId, string firstName, string lastName)
     {
-        UserDto updatedUser = new UserDto() { FirstName = firstName, LastName = lastName };
+        // Arrange
+        UserDto existingUserDto = _mapper.Map<UserDto>(GetUsersDummyData().FirstOrDefault(user => user.Id == userId));
+        UserDto updatedUserDto = new UserDto() { FirstName = firstName, LastName = lastName };
+        var expectedResponseDto = new UserDto { Id = existingUserDto.Id, FirstName = firstName, LastName = lastName};
+
+        _mockUserRepository.Setup(x => x.GetById(userId)).Returns(updatedUserDto);
+        _mockUserRepository.Setup(x => x.Update(userId, updatedUserDto)).Returns(expectedResponseDto);
 
         //act
-        var userResult = _mapper.Map<User>(_userService.UpdateUser(userId, updatedUser));
+        var userResult = _userService.UpdateUser(userId.ToString(), updatedUserDto);
 
         //assertions
         userResult.Should().NotBeNull();
@@ -123,16 +135,23 @@ public class UserServiceTest
     }
 
     [Theory]
-    [InlineData("2")]
-    public void DeleteUser_test(string userId)
+    [InlineData(2, "Peter")]
+    [InlineData(3, "Lastier")]
+    public void DeleteUser_ShouldReturnDeletedUser(int userId, string deletedFirstName)
     {
+        // Arrange
+        UserDto existingUserDto = _mapper.Map<UserDto>(GetUsersDummyData().FirstOrDefault(user => user.Id==userId));
+
+        _mockUserRepository.Setup(x => x.GetById(userId)).Returns(existingUserDto);
+        _mockUserRepository.Setup(x => x.Delete(userId)).Returns(existingUserDto);
+
         //act
-        var userResult = _mapper.Map<User>(_userService.DeleteUser(userId));
+        var userResult = _userService.DeleteUser(userId.ToString());
 
         //assertions
         userResult.Should().NotBeNull();
-        userResult.FirstName.Should().Be("Bradly");
-        userResult.Id.Should().Be(2);
+        userResult.FirstName.Should().Be(deletedFirstName);
+        userResult.Id.Should().Be(userId);
     }
 
     private List<User> GetUsersDummyData()

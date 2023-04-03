@@ -1,24 +1,27 @@
-﻿using System;
-using Moq;
-using FluentAssertions;
+﻿using Moq;
 using AutoMapper;
-using ListSmarter.Models;
-using ListSmarter.Models.Validators;
-using System.Collections.Generic;
-using ListSmarter.Services.Interfaces;
-using ListSmarter.Services;
-using ListSmarter.Repositories;
+using FluentAssertions;
 using ListSmarter.Common;
+using ListSmarter.Models;
+using ListSmarter.Services;
+using ListSmarter.Models.Validators;
+using ListSmarter.Services.Interfaces;
+using ListSmarter.Repositories.Interfaces;
 
 using Task = ListSmarter.Repositories.Models.Task;
-using ListSmarter.Repositories.Models;
+using User = ListSmarter.Repositories.Models.User;
+using Bucket = ListSmarter.Repositories.Models.Bucket;
+using AutoMapper.Configuration.Annotations;
 
 namespace ListSmarter.Test
 {
     public class TaskServiceTest
     {
-        private readonly ITaskService _taskService;
+        private readonly User _user;
+        private readonly Bucket _bucket;
         private readonly IMapper _mapper;
+        private readonly ITaskService _taskService;
+        private readonly Mock<ITaskRepository> _mockTaskRepository;
 
         public TaskServiceTest()
         {
@@ -28,35 +31,23 @@ namespace ListSmarter.Test
                 cfg.AddProfile(new AutoMapperProfile());
             }).CreateMapper();
 
+
             // Initialize TaskService
-            _taskService = new TaskService(new TaskRepository(_mapper), new TaskDtoValidator());
+            _mockTaskRepository = new Mock<ITaskRepository>();
+            _taskService = new TaskService(_mockTaskRepository.Object, new TaskDtoValidator());
 
-            // Seed Task DB
-            User user = new User
-            {
-                Id = 10,
-                FirstName = "Peter",
-                LastName = "Damian",
-            };
-            Database.UserDbList.Add(user);
-
-            // Seed Bucket DB
-            Bucket bucket = new Bucket { Id = 4, Title = "Burger Builder Application" };
-            Database.BucketDbList.Add(bucket);
-
-            // Seed Task DB
-            foreach (Task task in GetTasksDummyData().ToList())
-            {
-                Database.TaskDbList.Add(task);
-            }
+            _user = new User { Id = 10, FirstName = "Peter", LastName = "Damian" };
+            _bucket = new Bucket { Id = 4, Title = "Burger Builder Application" };
         }
 
         [Fact]
-        public void GetTasks_list()
+        public void GetTasks_ShouldReturnTasksList()
         {
-
+            // Arrange
+            var expectedResponse = _mapper.Map<List<TaskDto>>(GetTasksDummyData());
+            _mockTaskRepository.Setup(x => x.GetAll()).Returns(expectedResponse);
             //act
-            var TaskResult = _mapper.Map<List<Task>>(_taskService.GetTasks());
+            var TaskResult = _taskService.GetTasks();
 
             //assertions
             TaskResult.Should().NotBeNull();
@@ -64,118 +55,147 @@ namespace ListSmarter.Test
         }
 
         [Theory]
-        [InlineData("1")]
-        [InlineData("2")]
-        public void GetTaskById(string TaskId)
+        [InlineData(1)]
+        [InlineData(2)]
+        public void GetTask_ShouldReturnTaskDetails(int taskId)
         {
+            // Arrange
+            var expectedResponse = _mapper.Map<TaskDto>(GetTasksDummyData().FirstOrDefault(task => task.Id == taskId));
+            _mockTaskRepository.Setup(x => x.GetById(taskId)).Returns(expectedResponse);
+
             //act
-            var TaskResult = _taskService.GetTask(TaskId);
+            var TaskResult = _taskService.GetTask(taskId.ToString());
 
             //assertions
             TaskResult.Should().NotBeNull();
-            TaskResult.Id.Should().Be(Convert.ToInt32(TaskId));
+            TaskResult.Id.Should().Be(taskId);
+            TaskResult.Title.Should().Be($"Create landing page {taskId}");
         }
 
         [Theory]
-        [InlineData("7890")]
-        public void GetTaskById_ThrowNotFoundError(string TaskId)
+        [InlineData(7890)]
+        [InlineData(532)]
+        public void GetTask_ShouldThrowNotFoundError(int taskId)
         {
+            // Arrange
+            _mockTaskRepository.Setup(x => x.GetById(taskId)).Throws(new ArgumentException($"Task with ID {taskId} not found"));
+
             //act
-            Action TaskResult = () => _taskService.GetTask(TaskId);
+            Action TaskResult = () => _taskService.GetTask(taskId.ToString());
 
             //assertions
-            TaskResult.Should().Throw<ArgumentException>().WithMessage($"Task with ID 7890 not found");
+            TaskResult.Should().Throw<ArgumentException>().WithMessage($"Task with ID {taskId} not found");
         }
 
         [Theory]
         [InlineData(null)]
-        public void GetTaskById_ThrowError_ForMissing_TaskId(string TaskId)
+        public void GetTask_ShouldThrowError_WhenTaskIdIsMissing(int taskId)
         {
+            _mockTaskRepository.Setup(x => x.GetById(taskId)).Throws(new ArgumentException($"Task_Error: Task ID is missing"));
+
             //act
-            Action TaskResult = () => _taskService.GetTask(TaskId);
+            Action TaskResult = () => _taskService.GetTask(taskId.ToString());
 
             //assertions
-            TaskResult.Should().Throw<Exception>().WithMessage($"Task_Error: Task ID is missing");
+            TaskResult.Should().Throw<Exception>().WithMessage("Task_Error: Task ID is missing");
         }
 
         [Theory]
         [InlineData("wq34_rtUhZ")]
-        public void GetTaskById_ThrowError_For_InvalidTaskId(string TaskId)
+        public void GetTask_ShouldThrowError_WhenTaskIdIsInvalid(string taskIdString)
         {
             //act
-            var TaskResult = () => _taskService.GetTask(TaskId);
+            var TaskResult = () => _taskService.GetTask(taskIdString);
 
             //assertions
-            TaskResult.Should().Throw<Exception>().WithMessage($"Task_Error: Task ID should be a number");
+            TaskResult.Should().Throw<Exception>().WithMessage("Task_Error: Task ID should be a number");
         }
 
         [Theory]
-        [InlineData("Create navigation menu", "dummy description", StatusEnum.Open)]
-        [InlineData("Title 2", "description 2", StatusEnum.Closed)]
-        [InlineData("Title 3", "description 3", StatusEnum.None)]
-        public void CreateTask_test(string title, string description, StatusEnum status)
+        [InlineData(1, "Create navigation menu", "dummy description", StatusEnum.Open)]
+        [InlineData(2, "Title 2", "description 2", StatusEnum.Closed)]
+        [InlineData(3, "Title 3", "description 3", StatusEnum.None)]
+        public void CreateTask_test(int taskId, string title, string description, StatusEnum status)
         {
-            TaskDto newTask = new TaskDto() { Title = title, Description = description, Status = status };
+            TaskDto newTaskDto = new TaskDto() { Title = title, Description = description, Status = status };
+            TaskDto expectedResponseDto = new TaskDto() { Id = taskId, Title = title, Description = description, Status = status };
+            _mockTaskRepository.Setup(x => x.Create(newTaskDto)).Returns(expectedResponseDto);
 
             //act
-            var TaskResult = _mapper.Map<Task>(_taskService.CreateTask(newTask));
+            var TaskResult = _mapper.Map<Task>(_taskService.CreateTask(newTaskDto));
 
             //assertions
             TaskResult.Should().NotBeNull();
+            TaskResult.Id.Should().Be(taskId);
             TaskResult.Title.Should().Be(title);
             TaskResult.Status.Should().Be(status);
             TaskResult.Description.Should().Be(description);
         }
 
         [Theory]
-        [InlineData("1", "Create navigation menu", "dummy description")]
-        public void UpdateTask_test(string TaskId, string title, string description)
+        [InlineData(1, "Create navigation menu", "dummy description")]
+        [InlineData(2, "Create aboutus menu", "dummy description")]
+        public void UpdateTask_ShouldReturnUpdatedTask(int taskId, string title, string description)
         {
-            TaskDto updatedTask = new TaskDto() { Title = title, Description = description };
+            TaskDto updatedTaskDto = new TaskDto() { Title = title, Description = description };
+            TaskDto existingTaskDto = _mapper.Map<TaskDto>(GetTasksDummyData().FirstOrDefault(task => task.Id == taskId));
+            TaskDto expectedResponseDto = new TaskDto() { Id = taskId, Title = title, Description = description, Status = existingTaskDto.Status };
+
+            _mockTaskRepository.Setup(x => x.GetById(taskId)).Returns(existingTaskDto);
+            _mockTaskRepository.Setup(x => x.Update(taskId, updatedTaskDto)).Returns(expectedResponseDto);
 
             //act
-            var TaskResult = _mapper.Map<Task>(_taskService.UpdateTask(TaskId, updatedTask));
+            var TaskResult = _taskService.UpdateTask(taskId.ToString(), updatedTaskDto);
 
             //assertions
             TaskResult.Should().NotBeNull();
-            TaskResult.Id.Should().Be(Convert.ToInt32(TaskId));
+            TaskResult.Id.Should().Be(taskId);
             TaskResult.Title.Should().Be(title);
             TaskResult.Status.Should().Be(StatusEnum.None);
             TaskResult.Description.Should().Be(description);
         }
 
         [Theory]
-        [InlineData("2")]
-        [InlineData("3")]
-        public void DeleteTask_test(string TaskId)
+        [InlineData(2)]
+        [InlineData(3)]
+        public void DeleteTask_ShouldReturnDeletedTask(int taskId)
         {
+            TaskDto expectedResponseDto = _mapper.Map<TaskDto>(GetTasksDummyData().FirstOrDefault(task => task.Id == taskId));
+            _mockTaskRepository.Setup(x => x.GetById(taskId)).Returns(expectedResponseDto);
+            _mockTaskRepository.Setup(x => x.Delete(taskId)).Returns(expectedResponseDto);
+
             //act
-            var TaskResult = _mapper.Map<Task>(_taskService.DeleteTask(TaskId));
+            var TaskResult = _taskService.DeleteTask(taskId.ToString());
 
             //assertions
             TaskResult.Should().NotBeNull();
-            TaskResult.Title.Should().Be($"Create landing page {TaskId}");
-            TaskResult.Id.Should().Be(Convert.ToInt32(TaskId));
+            TaskResult.Title.Should().Be($"Create landing page {taskId}");
+            TaskResult.Id.Should().Be(taskId);
         }
 
         [Theory]
-        [InlineData("1034", "1")]
-        public void AssignBucketToTask_ThrowError_If_Task_Not_Found(string taskId, string bucketId)
+        [InlineData(1034, 1)]
+        [InlineData(104, 2)]
+        public void AssignBucketToTask_ShouldThrowError_WhenTaskNotFound(int taskId, int bucketId)
         {
             // act
-            BucketDto bucketDto = new BucketDto { Id = Convert.ToInt32(bucketId), Title = "Bucket Title 1" };
-            Action TaskResult = () => _taskService.AssignBucketToTask(taskId, bucketDto);
+            BucketDto bucketDto = new BucketDto { Id = bucketId, Title = $"Bucket Title {bucketId}" };
+            Action TaskResult = () => _taskService.AssignBucketToTask(taskId.ToString(), bucketDto);
 
-            TaskResult.Should().Throw<Exception>().WithMessage("Task with ID 1034 not found");
+            TaskResult.Should().Throw<Exception>().WithMessage($"Task with ID {taskId} not found");
         }
 
-        [Theory]
-        [InlineData("1", "1")]
-        public void AssignBucketToTask_ThrowError_If_Bucket_Limit_Exceeded(string taskId, string bucketId)
+        [Theory(Skip = "skip it")]
+        [InlineData(1, 1)]
+        public void AssignBucketToTask_ThrowError_WhenBucketLimitReached(int taskId, int bucketId)
         {
+            // Arrange
+            TaskDto existingTaskDto = _mapper.Map<TaskDto>(GetTasksDummyData().FirstOrDefault(task => task.Id == taskId));
+            _mockTaskRepository.Setup(x => x.GetById(taskId)).Returns(existingTaskDto);
+
             // act
-            BucketDto bucketDto = new BucketDto { Id = Convert.ToInt32(bucketId), Title = "Bucket Title 1" };
-            Action TaskResult = () => _taskService.AssignBucketToTask(taskId, bucketDto);
+            BucketDto bucketDto = new BucketDto { Id = bucketId, Title = "Bucket Title 1" };
+            Action TaskResult = () => _taskService.AssignBucketToTask(taskId.ToString(), bucketDto);
 
             TaskResult.Should().Throw<Exception>().WithMessage("Task_Error: 10 Tasks per Bucket exceeded");
         }

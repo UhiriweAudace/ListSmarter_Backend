@@ -126,9 +126,8 @@ namespace ListSmarter.Services
                 if (cur?.Bucket?.Id == bucketId)
                 {
                     int count = prev++;
+                    return count;
                 }
-
-                Console.WriteLine("=> TaskCount <==", prev);
    
                 return prev;
             });

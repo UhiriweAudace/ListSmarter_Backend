@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Moq;
 using AutoMapper;
 using FluentAssertions;
 using ListSmarter.Models;
-using ListSmarter.Common;
 using ListSmarter.Services;
-using ListSmarter.Repositories;
 using ListSmarter.Services.Interfaces;
 using ListSmarter.Repositories.Models;
 using ListSmarter.Repositories.Interfaces;
@@ -17,6 +15,7 @@ namespace ListSmarter.Test
     {
         private readonly IMapper _mapper;
         private readonly IBucketService _bucketService;
+        private readonly Mock<IBucketRepository> _mockBucketRepository;
 
         public BucketServiceTest()
         {
@@ -24,19 +23,18 @@ namespace ListSmarter.Test
             {
                 cfg.AddProfile(new AutoMapperProfile());
             }).CreateMapper();
-            _bucketService = new BucketService(new BucketRepository(_mapper), new BucketDtoValidator());
 
-            foreach (Bucket bucket in GetBucketsDummyData())
-            {
-                Database.BucketDbList.Add(bucket);
-            }
+            _mockBucketRepository = new Mock<IBucketRepository>();
+            _bucketService = new BucketService(_mockBucketRepository.Object, new BucketDtoValidator());
         }
 
         [Theory]
         [InlineData(" ")]
-        public void CreateBucket_ThrowError_When_BucketId_Is_Missing(string title)
+        public void CreateBucket_ShouldThrowError_WhenBucketIdIsMissing(string title)
         {
+            // Arrange
             BucketDto newBucket = new BucketDto { Title = title };
+            var mockBucketRepo = _mockBucketRepository.Setup(x => x.Create(newBucket)).Returns(new BucketDto { Id = 1, Title = title });
 
             //act
             Action BucketResult = () => _bucketService.CreateBucket(newBucket);
@@ -49,22 +47,29 @@ namespace ListSmarter.Test
         [Theory]
         [InlineData("Airbnb_application")]
         [InlineData("Barbacar_app")]
-        public void CreateBucket_test(string Title)
+        public void CreateBucket_ShouldReturnCreatedBucket(string title)
         {
-            BucketDto newBucket = new BucketDto { Title = Title };
+            // Arrange
+            BucketDto newBucket = new BucketDto { Title = title };
+            var mockBucketRepo = _mockBucketRepository.Setup(x => x.Create(newBucket)).Returns(new BucketDto { Id = 1, Title = title });
 
             //act
             var BucketResult = _mapper.Map<Bucket>(_bucketService.CreateBucket(newBucket));
 
             //assertions
             BucketResult.Should().NotBeNull();
-            BucketResult.Title.Should().Be(Title);
+            BucketResult.Title.Should().Be(title);
         }
 
         [Theory]
         [InlineData("2")]
-        public void GetBucketById(string bucketId)
+        public void GetBucketById_ShouldReturnExistingBucketDetails(string bucketId)
         {
+            var id = Convert.ToInt32(bucketId);
+            var expectedResponse = _mapper.Map<BucketDto>(GetBucketsDummyData().FirstOrDefault(x => x.Id == id));
+            // Arrange
+            var mockBucketRepo = _mockBucketRepository.Setup(x => x.GetById(id)).Returns(expectedResponse);
+
             //act
             var bucketResult = _bucketService.GetBucket(bucketId);
 
@@ -74,13 +79,15 @@ namespace ListSmarter.Test
         }
 
         [Fact]
-        public void GetBuckets_list()
+        public void GetBuckets_ShouldReturnBucketsList()
         {
+            // Arrange
+            var expectedResponse = _mapper.Map<List<BucketDto>>(GetBucketsDummyData());
+            _mockBucketRepository.Setup(x => x.GetAll()).Returns(expectedResponse);
 
             //act
             var BucketResult = _bucketService.GetBuckets();
 
-            //Console.WriteLine(JsonSerializer.Serialize(BucketResult));
             //assertions
             BucketResult.Should().NotBeNull();
             BucketResult.Count.Should().BeGreaterThan(1);
@@ -88,10 +95,15 @@ namespace ListSmarter.Test
 
         [Theory]
         [InlineData("430")]
-        public void GetBucketById_ThrowNotFoundError(string BucketId)
+        public void GetBucketById_ShouldThrowNotFoundError(string bucketId)
         {
+            // Arrange
+            var id = Convert.ToInt32(bucketId);
+            BucketDto expectedResponse = null;
+            _mockBucketRepository.Setup(x => x.GetById(id)).Returns(expectedResponse);
+
             //act
-            Action BucketResult = () => _bucketService.GetBucket(BucketId);
+            Action BucketResult = () => _bucketService.GetBucket(bucketId);
 
             //assertions
             BucketResult.Should().Throw<ArgumentException>().WithMessage("Bucket with ID 430 not found");
@@ -99,10 +111,10 @@ namespace ListSmarter.Test
 
         [Theory]
         [InlineData(null)]
-        public void GetBucketById_ThrowError_ForMissing_BucketId(string BucketId)
+        public void GetBucketById_ShouldThrowError_WhenBucketIdIsMissing(string bucketId)
         {
             //act
-            Action BucketResult = () => _bucketService.GetBucket(BucketId);
+            Action BucketResult = () => _bucketService.GetBucket(bucketId);
 
             //assertions
             BucketResult.Should().Throw<Exception>().WithMessage("Bucket_Error: Bucket ID is missing");
@@ -110,7 +122,7 @@ namespace ListSmarter.Test
 
         [Theory]
         [InlineData("xdrt_45")]
-        public void GetBucketById_ThrowError_For_InvalidBucketId(string BucketId)
+        public void GetBucketById_ShouldThrowError_WhenBucketIdIsInvalid(string BucketId)
         {
             //act
             var BucketResult = () => _bucketService.GetBucket(BucketId);
@@ -120,32 +132,46 @@ namespace ListSmarter.Test
         }
 
         [Theory]
-        [InlineData("1", "Loan application")]
         [InlineData("3", "Todos Apps")]
-        public void UpdateBucket_test(string BucketId, string Title)
+        [InlineData("1", "Loan application")]
+        public void UpdateBucket_ShouldReturnUpdatedBucket(string bucketIdString, string updatedTitle)
         {
-            BucketDto updatedBucket = new BucketDto { Title = Title };
+            // Arrange
+            int bucketId = Convert.ToInt32(bucketIdString);
+            BucketDto updatedBucketDto = new BucketDto { Title = updatedTitle };
+            BucketDto existingBucketDto = _mapper.Map<BucketDto>(GetBucketsDummyData().FirstOrDefault(x => x.Id == bucketId));
+            var expectedResponseDto = new BucketDto { Id = existingBucketDto.Id, Title = updatedTitle };
+
+            _mockBucketRepository.Setup(x => x.GetById(bucketId)).Returns(existingBucketDto);
+            _mockBucketRepository.Setup(x => x.Update(bucketId, updatedBucketDto)).Returns(expectedResponseDto);
+
 
             //act
-            var BucketResult = _mapper.Map<Bucket>(_bucketService.UpdateBucket(BucketId, updatedBucket));
+            var BucketResult = _bucketService.UpdateBucket(bucketIdString, updatedBucketDto);
 
             //assertions
             BucketResult.Should().NotBeNull();
-            BucketResult.Title.Should().Be(Title);
-            BucketResult.Id.Should().Be(Convert.ToInt32(BucketId));
+            BucketResult.Title.Should().Be(updatedTitle);
+            BucketResult.Id.Should().Be(Convert.ToInt32(bucketId));
         }
 
         [Theory]
-        [InlineData("2")]
-        public void DeleteBucket_test(string BucketId)
+        [InlineData(3, "Todo_Application")]
+        [InlineData(2, "ListSmarter_Application")]
+        public void DeleteBucket_ShouldReturnDeletedBucket(int bucketId, string deletedTitle)
         {
+            BucketDto existingBucketDto = _mapper.Map<BucketDto>(GetBucketsDummyData().FirstOrDefault(x => x.Id == bucketId));
+
+            _mockBucketRepository.Setup(x => x.GetById(bucketId)).Returns(existingBucketDto);
+            _mockBucketRepository.Setup(x => x.Delete(bucketId)).Returns(existingBucketDto);
+
             //act
-            var BucketResult = _mapper.Map<Bucket>(_bucketService.DeleteBucket(BucketId));
+            var BucketResult = _bucketService.DeleteBucket(bucketId.ToString());
 
             //assertions
             BucketResult.Should().NotBeNull();
-            BucketResult.Title.Should().Be("ListSmarter_Application");
-            BucketResult.Id.Should().Be(2);
+            BucketResult.Id.Should().Be(bucketId);
+            BucketResult.Title.Should().Be(deletedTitle);
         }
 
         private List<Bucket> GetBucketsDummyData()
